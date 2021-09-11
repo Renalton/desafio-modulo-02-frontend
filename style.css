@@ -164,6 +164,13 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  background: rgba(0, 0, 0, 0.6);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+
+
 }
 
 .highlight__info {

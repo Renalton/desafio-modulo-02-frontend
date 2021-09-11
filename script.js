@@ -1,243 +1,170 @@
-const moviesContainer = document.querySelector('.movies');
-const btnPrev = document.querySelector('.btn-prev');
-const btnNext = document.querySelector('.btn-next');
+const movies = document.querySelector('.movies');
+//variável para controlar o número de páginas dentro do for no eixo i;
+
+
 const input = document.querySelector('.input');
-const btnTheme = document.querySelector('.btn-theme');
 
-const body = document.querySelector('body');
-const modal = document.querySelector('.modal');
-const modalClose = document.querySelector('.modal__close');
-const modalTitle = document.querySelector('.modal__title');
-const modalImage = document.querySelector('.modal__img');
-const modalDescription = document.querySelector('.modal__description');
-const modalAverage = document.querySelector('.modal__average');
-const modalGenres = document.querySelector('.modal__genres');
+let btn_prev = document.querySelector('.btn-prev');
+let btn_next = document.querySelector('.btn-next');
 
-const highlightVideoLink = document.querySelector('.highlight__video-link');
-const highlightVideo = document.querySelector('.highlight__video');
-const highlightTitle = document.querySelector('.highlight__title');
-const highlightRating = document.querySelector('.highlight__rating');
-const highlightGenres = document.querySelector('.highlight__genres');
-const highlightLaunch = document.querySelector('.highlight__launch');
-const highlightDescription = document.querySelector('.highlight__description');
 
-let currentPage = 0;
-let currentMovies = [];
+//Dados para preencher as informações do filme do dia
+const highlight__video = document.querySelector('.highlight__video');
+highlight__video.classList.add('highlight__video');
+const highlight__title = document.querySelector('.highlight__title');
+highlight__title.classList.add('highlight__title');
+const highlight__rating = document.querySelector('.highlight__rating');
+highlight__rating.classList.add('highlight__rating');
+const highlight__genres = document.querySelector('.highlight__genres');
+highlight__genres.classList.add('highlight__genres');
+const highlight__launch = document.querySelector('.highlight__launch');
+highlight__launch.classList.add('highlight__genre-launch');
+const highlight__description = document.querySelector('.highlight__description');
+highlight__description.classList.add('highlight__description');
+const highlight__video_link = document.querySelector('.highlight__video-link');
 
-const persistedTheme = localStorage.getItem('theme');
 
-let currentTheme = persistedTheme ? persistedTheme : 'light';
 
-function displayDarkTheme() {
-  currentTheme = 'dark';
-  btnTheme.src = './assets/dark-mode.svg';
-  btnPrev.src = './assets/seta-esquerda-branca.svg';
-  btnNext.src = './assets/seta-direita-branca.svg';
+//Função para realizar a pesquisa do filmes. Infelizmente não conseguir finalizar
+function pesquisaFilme() {
 
-  body.style.setProperty('--background-color', "#242424");
-  body.style.setProperty('--color', "#FFF");
-  body.style.setProperty('--input-background-color', "#FFF");
-  body.style.setProperty('--shadow-color', "0px 4px 8px rgba(255, 255, 255, 0.15)");
-  body.style.setProperty('--highlight-background', "#454545");
-  body.style.setProperty('--highlight-color', "rgba(255, 255, 255, 0.7)");
-  body.style.setProperty('--highlight-description', "#FFF");
-}
+    input.addEventListener('keydown', function (event) {
+        if (event.key === "Enter") {
+            controle = 0;
+            console.log(event);
+            fetch(`https://tmdb-proxy.cubos-academy.workers.dev/3/search/movie?language=pt-BR&include_adult=false&query=${input.value}`).then(function (resposta) {
+                const promiseBody = resposta.json();
 
-function displayLightTheme() {
-  currentTheme = 'light';
-  btnTheme.src = './assets/light-mode.svg';
-  btnPrev.src = './assets/seta-esquerda-preta.svg';
-  btnNext.src = './assets/seta-direita-preta.svg';
-  
-  body.style.setProperty('--background-color', "#FFF");
-  body.style.setProperty('--color', "#000");
-  body.style.setProperty('--input-background-color', "#979797");
-  body.style.setProperty('--highlight-background', "#FFF");
-  body.style.setProperty('--highlight-color', "rgba(0, 0, 0, 0.7)");
-  body.style.setProperty('--highlight-description', "#000");
-}
+                promiseBody.then(function (body) {
 
-function toggleTheme() {
-  if (currentTheme === 'light') {
-    displayDarkTheme();
-  } else {
-    displayLightTheme();
-  }
 
-  localStorage.setItem('theme', currentTheme);
-}
 
-if (currentTheme === 'light') {
-  displayLightTheme();
-} else {
-  displayDarkTheme();
-}
+                    for (let i = 0; i < 4; i++) {
+                        for (let j = 0; j < 5; j++) {
+                            if (i < 4 && j < 5) {
 
-btnTheme.addEventListener('click', function () {
-  toggleTheme();
-})
 
-input.addEventListener('keydown', function (event) {
-  if (event.key !== 'Enter') {
-    return;
-  }
+                                const movie = document.createElement('div');
+                                movie.classList.add('movie');
+                                const movie_info = document.createElement('div');
+                                movie_info.classList.add('movie__info');
+                                const movie_title = document.createElement('span');
+                                movie_title.classList.add('movie__title');
+                                const movie_rating = document.createElement('span');
+                                movie_rating.classList.add('movie__rating');
+                                const img_star_movie = document.createElement('img');
 
-  currentPage = 0;
 
-  if (input.value) {
-    loadSearchMovies(input.value);
-  } else {
-    loadMovies();
-  }
+                                movie.style.backgroundImage = `url('${body.results[j].poster_path}')`;
+                                movie_title.textContent = body.results[j].title;
+                                img_star_movie.src = "./assets/estrela.svg"
+                                img_star_movie.alt = "Estrela";
+                                movie_rating.textContent = body.results[j].vote_average;
 
-  input.value = '';
-})
 
-btnPrev.addEventListener('click', function () {
-  if (currentPage === 0) {
-    currentPage = 3;
-  } else {
-    currentPage--;
-  }
-  displayMovies();
-});
 
-btnNext.addEventListener('click', function () {
-  if (currentPage === 3) {
-    currentPage = 0;
-  } else {
-    currentPage++;
-  }
-  displayMovies();
-});
+                                movie_info.append(movie_title, movie_rating, img_star_movie);
+                                movie.append(movie_info);
+                                movies.append(movie);
 
-modal.addEventListener('click', closeModal);
 
-modalClose.addEventListener('click', closeModal);
+                            }
+                        }
+                    }
 
-function closeModal() {
-  modal.classList.add('hidden');
-  body.style.overflow = 'auto';
-}
 
-function displayMovies() {
-  moviesContainer.textContent = '';
+                })
+            })
+        }
 
-  for (let i = currentPage * 5; i < (currentPage + 1) * 5; i++) {
-    const movie = currentMovies[i];
-
-    const movieContainer = document.createElement('div');
-    movieContainer.classList.add('movie');
-    movieContainer.style.backgroundImage = `url('${movie.poster_path}')`;
-
-    movieContainer.addEventListener('click', function () {
-      loadMovie(movie.id);
     })
 
-    const movieInfo = document.createElement('div');
-    movieInfo.classList.add('movie__info');
-    
-    const movieTitle = document.createElement('span');
-    movieTitle.classList.add('movie__title');
-    movieTitle.textContent = movie.title;
-    
-    const movieRating = document.createElement('span');
-    movieRating.classList.add('movie__rating');
 
-    const star = document.createElement('img');
-    star.src = "./assets/estrela.svg";
-    star.alt = "Estrela";
 
-    movieRating.append(star, movie.vote_average);
-    movieInfo.append(movieTitle, movieRating);
-    movieContainer.append(movieInfo);
-
-    moviesContainer.append(movieContainer);
-  }
 }
 
-function loadSearchMovies(search) {
-  const responsePromise = fetch(`https://tmdb-proxy.cubos-academy.workers.dev/3/search/movie?language=pt-BR&include_adult=false&query=${search}`);
+//Nessa função eu uso o conceito de matriz (1xj) para controlar a quantidade de filmes exibidos o na posição j, a matriz faz o carregamento dos filmes. Infelizmente não conseguir finalizar
+function gradeMovies() {
 
-  responsePromise.then(function (response) {
-    const bodyPromise = response.json();
 
-    bodyPromise.then(function (body) {
-      currentMovies = body.results;
-      displayMovies();
+    const responseEndpoint = fetch('https://tmdb-proxy.cubos-academy.workers.dev/3/discover/movie?language=pt-BR&include_adult=false');
+    responseEndpoint.then(function (resposta) {
+        const responseBody = resposta.json();
+
+        responseBody.then(function (body) {
+            console.log(body);
+
+
+            for (let i = 0; i < 1; i++) {
+                for (let j = 0; j < 5; j++) {
+                    if (i < 4 && j < 5) {
+
+
+                        const movie = document.createElement('div');
+                        movie.classList.add('movie');
+                        const movie_info = document.createElement('div');
+                        movie_info.classList.add('movie__info');
+                        const movie_title = document.createElement('span');
+                        movie_title.classList.add('movie__title');
+                        const movie_rating = document.createElement('span');
+                        movie_rating.classList.add('movie__rating');
+                        const img_star_movie = document.createElement('img');
+
+
+                        movie.style.backgroundImage = `url('${body.results[j].poster_path}')`;
+                        movie_title.textContent = body.results[j].title;
+                        img_star_movie.src = "./assets/estrela.svg"
+                        img_star_movie.alt = "Estrela";
+                        movie_rating.textContent = body.results[j].vote_average;
+
+
+
+                        movie_info.append(movie_title, movie_rating, img_star_movie);
+                        movie.append(movie_info);
+                        movies.append(movie);
+                    }
+                }
+            }
+
+
+        })
+
     })
-  });
+
 }
 
-function loadMovies() {
-  const responsePromise = fetch('https://tmdb-proxy.cubos-academy.workers.dev/3/discover/movie?language=pt-BR&include_adult=false');
 
-  responsePromise.then(function (response) {
-    const bodyPromise = response.json();
+//Função para exibir o filme do dia
+function filmeDoDia() {
 
-    bodyPromise.then(function (body) {
-      currentMovies = body.results;
-      displayMovies();
+    fetch('https://tmdb-proxy.cubos-academy.workers.dev/3/movie/436969?language=pt-BR').then(function (resposta) {
+        const responseBody = resposta.json();
+
+        responseBody.then(function (body) {
+            highlight__video.style.backgroundImage = `url('${body.backdrop_path}')`;
+            highlight__title.textContent = body.title;
+            highlight__rating.textContent = body.vote_average
+            highlight__genres.textContent = `${body.genres[0].name}, ${body.genres[1].name}, ${body.genres[2].name}, ${body.genres[3].name} / `;
+            highlight__launch.textContent = new Date(body.release_date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+            highlight__description.textContent = body.overview;
+
+
+        });
+    });
+    fetch('https://tmdb-proxy.cubos-academy.workers.dev/3/movie/436969/videos?language=pt-BR').then(function (resposta) {
+        const promiseBody = resposta.json();
+        promiseBody.then(function (body) {
+            console.log(body);
+            highlight__video_link.href = `https://www.youtube.com/watch?v=${body.results[0].key}`;
+
+        })
     })
-  });
+
 }
 
-function loadHighlightMovie() {
-  const basePromise = fetch('https://tmdb-proxy.cubos-academy.workers.dev/3/movie/436969?language=pt-BR');
-  
-  basePromise.then(function (response) {
-    const bodyPromise = response.json();
-    
-    bodyPromise.then(function (body) {
-      highlightVideo.style.background = `linear-gradient(rgba(0, 0, 0, 0.6) 100%, rgba(0, 0, 0, 0.6) 100%), url('${body.backdrop_path}') no-repeat center / cover`;
-      highlightTitle.textContent = body.title;
-      highlightRating.textContent = body.vote_average;
-      highlightGenres.textContent = body.genres.map(function (genre) {
-        return genre.name;
-      }).join(', ');
-      highlightLaunch.textContent = (new Date(body.release_date)).toLocaleDateString('pt-BR', { year: "numeric", month: "long", day: "numeric" });
-      highlightDescription.textContent = body.overview;
-    })
-  });
-  
-  const linkPromise = fetch('https://tmdb-proxy.cubos-academy.workers.dev/3/movie/436969/videos?language=pt-BR');
-  
-  linkPromise.then(function (response) {
-    const bodyPromise = response.json();
-    
-    bodyPromise.then(function (body) {
-      highlightVideoLink.href = `https://www.youtube.com/watch?v=${body.results[0].key}`;
-    })
-  });
-}
 
-function loadMovie(id) {
-  modal.classList.remove("hidden");
-  body.style.overflow = 'hidden';
+filmeDoDia();
+pesquisaFilme();
+gradeMovies();
 
-  const responsePromise = fetch(`https://tmdb-proxy.cubos-academy.workers.dev/3/movie/${id}?language=pt-BR`);
 
-  responsePromise.then(function (response) {
-    const bodyPromise = response.json();
-
-    bodyPromise.then(function (body) {
-      modalTitle.textContent = body.title;
-      modalImage.src = body.backdrop_path;
-      modalImage.alt = body.title;
-      modalDescription.textContent = body.overview;
-      modalAverage.textContent = body.vote_average;
-
-      modalGenres.textContent = '';
-      body.genres.forEach(function (genre) {
-        const modalGenre = document.createElement('span');
-        modalGenre.textContent = genre.name;
-        modalGenre.classList.add('modal__genre');
-
-        modalGenres.append(modalGenre);
-      })
-    })
-  });
-}
-
-loadMovies();
-loadHighlightMovie();
